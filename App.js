@@ -10,8 +10,8 @@ function App(props) {
     // <SignupScreen />
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="signup" component={SignupScreen} />
         <Stack.Screen name="createPost" component={CreatePostScreen} />
+        <Stack.Screen name="signup" component={SignupScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

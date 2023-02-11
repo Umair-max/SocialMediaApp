@@ -15,7 +15,7 @@ import Screen from '../components/Screen';
 import colors from '../config/colors';
 
 function CreatePostScreen({route}) {
-  const {userUID} = route.params;
+  // const {userUID} = route.params;
   const [imageUri, setImageUri] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [title, setTitle] = useState('');
