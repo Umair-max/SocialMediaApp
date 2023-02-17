@@ -1,18 +1,41 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   StyleSheet,
   ImageBackground,
-  Image,
-  TouchableOpacity,
+  Text,
+  TouchableWithoutFeedback,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
+import AuthsContext from '../auths/AuthsContext';
 
 import AppButton from '../components/AppButton';
 import AppTextInput from '../components/AppTextInput';
+import colors from '../config/colors';
 
-function LoginScreen(props) {
+function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigation = useNavigation();
+  const {user, setUser} = useContext(AuthsContext);
+
+  const handleLogin = () => {
+    try {
+      auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(snapshot => {
+          var user = snapshot.user;
+          console.log(user);
+          setUser(auth().currentUser);
+        })
+        .catch(error => {
+          alert(error);
+        });
+    } catch (error) {
+      console.log('Login giving an error', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -31,7 +54,17 @@ function LoginScreen(props) {
             value={password}
             onChangeText={text => setPassword(text)}
           />
-          <AppButton title="Login" color="yellow" />
+          <AppButton
+            title="Login"
+            color="yellow"
+            onPress={() => handleLogin()}
+          />
+          <TouchableWithoutFeedback
+            onPress={() => {
+              navigation.navigate('Signup');
+            }}>
+            <Text style={styles.signupText}>New User Signup?</Text>
+          </TouchableWithoutFeedback>
         </View>
       </ImageBackground>
     </View>
@@ -48,20 +81,13 @@ const styles = StyleSheet.create({
   signup: {
     alignItems: 'center',
     marginHorizontal: 20,
+    top: 128,
   },
-  imageContainer: {paddingBottom: 40},
-  profileImageContainer: {
-    backgroundColor: '#EBC7E6',
-    height: 120,
-    width: 120,
-    borderRadius: 60,
+  signupText: {
     alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  profileImage: {
-    height: '100%',
-    width: '100%',
+    color: colors.white,
+    fontSize: 20,
+    paddingTop: 10,
   },
 });
 export default LoginScreen;

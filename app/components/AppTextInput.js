@@ -20,6 +20,8 @@ function AppTextInput({iconSource, ...otherProps}) {
       <TextInput
         placeholderTextColor={defaultStyles.colors.grey}
         style={defaultStyles.Text}
+        autoCapitalize={'none'}
+        autoCorrect={false}
         {...otherProps}
       />
     </View>

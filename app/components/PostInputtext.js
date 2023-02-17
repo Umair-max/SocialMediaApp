@@ -23,6 +23,7 @@ function PostInputText({
         autoCapitalize={'none'}
         autoFocus
         style={[styles.text, {color: colors[textColor]}]}
+        {...otherProps}
       />
       <View style={styles.line}></View>
     </View>

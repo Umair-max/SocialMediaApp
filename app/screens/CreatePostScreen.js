@@ -1,18 +1,21 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
   ImageBackground,
   Text,
-  Image,
   TouchableWithoutFeedback,
 } from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
+import storage from '@react-native-firebase/storage';
+import firestore from '@react-native-firebase/firestore';
 
 import AppButton from '../components/AppButton';
 import InputPostTitle from '../components/PostInputtext';
 import Screen from '../components/Screen';
 import colors from '../config/colors';
+import auth from '@react-native-firebase/auth';
+import FastImage from 'react-native-fast-image';
 
 function CreatePostScreen({route}) {
   // const {userUID} = route.params;
@@ -20,6 +23,7 @@ function CreatePostScreen({route}) {
   const [imageUrl, setImageUrl] = useState(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+
   // ********************************************** Select image from gellery ***************************************
   const selectImage = async () => {
     try {
@@ -30,7 +34,6 @@ function CreatePostScreen({route}) {
       const result = await launchImageLibrary(options);
       if (!result?.didCancel) {
         result.assets.map(({uri}) => {
-          // console.log(uri);
           setImageUri(uri);
         });
       }
@@ -40,9 +43,11 @@ function CreatePostScreen({route}) {
   };
 
   // **************************************** store profile IMAGE in firebase STORAGE *********************************
-  const storeImage = userUid => {
+  const storeImage = () => {
+    const postId = firestore().collection('Users').doc().id;
+
     try {
-      var pathToBe = `Post/${userUid}`;
+      var pathToBe = 'Post Image' + postId;
       storage()
         .ref(pathToBe)
         .putFile(imageUri)
@@ -51,9 +56,8 @@ function CreatePostScreen({route}) {
             .ref(pathToBe)
             .getDownloadURL()
             .then(url => {
-              console.log('URL', url);
-              setImageUrl(url);
-              sendingProfileInfo(userUid, url);
+              // setImageUrl(url);
+              sendingProfileInfo(url, postId);
             })
             .catch(error => {
               console.log(error);
@@ -68,21 +72,22 @@ function CreatePostScreen({route}) {
   };
 
   // **************************************** store sign in info in fire base firestore ******************************
-  const sendingProfileInfo = (userUid, imageUrl_) => {
+  const sendingProfileInfo = (imageUrl_, postId) => {
     try {
       firestore()
-        .collection('Users')
-        .doc(userUid)
-        .set(
-          {
-            PostImage: imageUrl,
-            title: title,
-            description: description,
-          },
-          // {merge: true},
-        )
+        .collection('Posts')
+        .doc(postId)
+        .set({
+          postImage: imageUrl_,
+          title: title,
+          description: description,
+          userId: auth().currentUser.uid,
+        })
         .then(() => {
-          console.log('User added!');
+          console.log('Post added! in firestore storage');
+          setImageUri('');
+          setTitle('');
+          setDescription('');
         });
     } catch (error) {
       console.log('sending data giving an error', error);
@@ -99,9 +104,9 @@ function CreatePostScreen({route}) {
           <TouchableWithoutFeedback onPress={() => selectImage()}>
             <View style={styles.post}>
               {imageUri ? (
-                <Image style={styles.postImage} source={{uri: imageUri}} />
+                <FastImage style={styles.postImage} source={{uri: imageUri}} />
               ) : (
-                <Image
+                <FastImage
                   style={styles.add}
                   source={require('../assets/add.png')}
                 />
@@ -119,13 +124,13 @@ function CreatePostScreen({route}) {
             title={'Description:'}
             textColor={'white'}
             titleColor={'white'}
-            value={title}
+            value={description}
             onChangeText={text => setDescription(text)}
           />
           <AppButton
             color="yellow"
             title={'post'}
-            onPress={() => console.log(userUID)}
+            onPress={() => storeImage()}
           />
         </View>
       </ImageBackground>

@@ -1,7 +1,9 @@
 import React from 'react';
-import {StyleSheet, View, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet, View, TouchableOpacity} from 'react-native';
+
 import Icon from './Icon';
 import colors from '../config/colors';
+import FastImage from 'react-native-fast-image';
 
 function ProfileImage({imageUri, size = 120, onPress}) {
   return (
@@ -11,7 +13,7 @@ function ProfileImage({imageUri, size = 120, onPress}) {
           styles.profileImageContainer,
           {height: size, width: size, borderRadius: size / 2},
         ]}>
-        <Image style={styles.profileImage} source={{uri: imageUri}} />
+        <FastImage style={styles.profileImage} source={{uri: imageUri}} />
       </View>
       <TouchableOpacity
         style={{bottom: size / 3, left: size / 1.5}}
